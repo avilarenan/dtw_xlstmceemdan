@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import pandas as pd
       
 class WindowGenerator():
   def __init__(self, input_width, label_width, shift,
@@ -74,6 +75,42 @@ def plot(self, model=None, plot_col='IMF0_Close', max_subplots=3):
   plt.xlabel('Time [days]')
 
 WindowGenerator.plot = plot
+
+def iplot(self, model=None, plot_col='IMF0_Close'):
+  inputs, labels = self.example
+  plot_col_index = self.column_indices[plot_col]
+  max_n = len(inputs)
+  df = pd.DataFrame()
+  df_inputs = pd.DataFrame()
+  df_labels = pd.DataFrame()
+  df_predictions = pd.DataFrame()
+  for n in range(max_n):
+    df_inputs["y_inputs"] = inputs[n, :, plot_col_index]
+    df_inputs["x_inputs"] = self.input_indices
+    df_inputs.set_index("x_inputs", inplace=True)
+
+    if self.label_columns:
+      label_col_index = self.label_columns_indices.get(plot_col, None)
+    else:
+      label_col_index = plot_col_index
+
+    if label_col_index is None:
+      continue
+
+    df_labels["x_labels"] = self.label_indices
+    df_labels["y_labels"] = labels[n, :, label_col_index]
+    df_labels.set_index("x_labels", inplace=True)
+
+    if model is not None:
+      predictions = model(inputs)
+      df_predictions["x_predictions"] = self.label_indices
+      df_predictions["y_predictions"] = predictions[n, :, label_col_index]
+      df_predictions.set_index("x_predictions", inplace=True)
+
+  df = pd.concat([df_inputs, df_labels, df_predictions], axis="columns")
+  df.iplot()
+
+WindowGenerator.iplot = iplot
 
 def split_window(self, features):
   inputs = features[:, self.input_slice, :]

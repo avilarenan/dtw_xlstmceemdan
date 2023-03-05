@@ -20,7 +20,7 @@ class DataPrepper():
      self.original_data = {}
      self.scalers = {}
 
-  def prepare(self,):
+  def prepare(self):
     for ticker in self.tickers_list:
 
         data = yf.download(ticker, start=self.start_date, end=self.end_date, auto_adjust=True, group_by="ticker")
